@@ -19,8 +19,8 @@ const init = (folderName) => {
     }
 
     fse.ensureDirSync(targetPath);
-
     spinner.start('pull supos-ccws-template');
+    
     new Promise((resolve, reject) => download(
         "direct:https://github.com/noopn/supos-ccws-template.git#dev",
         targetPath,
@@ -28,12 +28,12 @@ const init = (folderName) => {
         resolve
     )).then((err) => {
         if (err) {
-            spinner.fail(err);
+            spinner.fail('pull template error， check your network connection!\n',err);
             process.exit(0);
         };
         spinner.succeed('pull supos-ccws-template succeed!');
         return new Promise((resolve, reject) => {
-            const child = spawn('npm', ['install'], { stdio: 'inherit' });
+            const child = spawn('yarn', ['install'], { stdio: 'inherit',cwd:targetPath });
             child.on('close', code => {
                 if (code !== 0) {
                     reject({
