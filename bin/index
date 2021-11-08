@@ -1,0 +1,16 @@
+#!/usr/bin/env node
+
+const { program } = require('commander');
+const init = require('../src/init');
+
+program
+	.version(require('../package').version, "-v, --version")
+    .command('create')
+    .description('create a workspace')
+    .argument('<folder>', 'workspace name')
+    .action((folder) => {
+        init(folder)
+      });
+    
+
+program.parse(process.argv);

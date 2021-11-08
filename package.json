@@ -1,0 +1,25 @@
+{
+  "name": "supos-ccws-cli",
+  "version": "1.0.2",
+  "main": "bin/index",
+  "bin":{
+    "supos-ccws-cli":"bin/index"
+  },
+  "license": "MIT",
+  "keywords": [
+    "supos-ccws-cli",
+    "custom component work space",
+    "supos"
+  ],
+  "author": "noopn",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^8.3.0",
+    "fs-extra": "^10.0.0",
+    "ora": "^5.4.1"
+  },
+  "files": [
+    "bin",
+    "src"
+  ]
+}
