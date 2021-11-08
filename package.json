@@ -2,8 +2,8 @@
   "name": "supos-ccws-cli",
   "version": "1.0.2",
   "main": "bin/index",
-  "bin":{
-    "supos-ccws-cli":"bin/index"
+  "bin": {
+    "supos-ccws-cli": "bin/index"
   },
   "license": "MIT",
   "keywords": [
@@ -15,6 +15,8 @@
   "dependencies": {
     "chalk": "^4.1.2",
     "commander": "^8.3.0",
+    "cross-spawn": "^7.0.3",
+    "download-git-repo": "^3.0.2",
     "fs-extra": "^10.0.0",
     "ora": "^5.4.1"
   },
