@@ -33,7 +33,7 @@ const init = (folderName) => {
         };
         spinner.succeed('pull supos-ccws-template succeed!');
         return new Promise((resolve, reject) => {
-            const child = spawn('yarn', ['install'], { stdio: 'inherit',cwd:targetPath });
+            const child = spawn('npm', ['install'], { stdio: 'inherit',cwd:targetPath });
             child.on('close', code => {
                 if (code !== 0) {
                     reject({
