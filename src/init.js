@@ -1,6 +1,5 @@
 const path = require('path');
 const fse = require('fs-extra');
-const chalk = require('chalk');
 const download = require('download-git-repo');
 const spawn = require('cross-spawn')
 const ora = require('ora');
@@ -10,16 +9,10 @@ const spinner = ora();
 const init = (folderName) => {
     const cwd = process.cwd();
     const targetPath = path.join(cwd, folderName);
-    if (fse.pathExistsSync(targetPath)) {
-        console.log(
-            chalk.red('error'),
-            'path already exist.'
-        )
-        process.exit(0)
-    }
-
-    fse.ensureDirSync(targetPath);
     spinner.start('pull supos-ccws-template');
+
+    fse.remove(targetPath);
+    fse.ensureDirSync(targetPath);
     
     new Promise((resolve, reject) => download(
         "direct:https://github.com/noopn/supos-ccws-template.git#dev",
