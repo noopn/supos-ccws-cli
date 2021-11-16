@@ -11,7 +11,7 @@ const init = (folderName) => {
     const targetPath = path.join(cwd, folderName);
     spinner.start('pull supos-ccws-template');
 
-    fse.remove(targetPath);
+    fse.removeSync(targetPath);
     fse.ensureDirSync(targetPath);
     
     new Promise((resolve, reject) => download(
