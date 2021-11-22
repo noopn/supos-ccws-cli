@@ -5,6 +5,7 @@ const spawn = require('cross-spawn')
 const ora = require('ora');
 const spinner = ora();
 
+const npm = /^win/.test(process.platform) ? 'npm.cmd' : 'npm';
 
 const init = (folderName) => {
     const cwd = process.cwd();
@@ -13,7 +14,7 @@ const init = (folderName) => {
 
     fse.removeSync(targetPath);
     fse.ensureDirSync(targetPath);
-    
+
     new Promise((resolve, reject) => download(
         "direct:https://github.com/noopn/supos-ccws-template.git#dev",
         targetPath,
@@ -21,12 +22,12 @@ const init = (folderName) => {
         resolve
     )).then((err) => {
         if (err) {
-            spinner.fail('pull template error， check your network connection!\n',err);
+            spinner.fail('pull template error， check your network connection!\n', err);
             process.exit(0);
         };
         spinner.succeed('pull supos-ccws-template succeed!');
         return new Promise((resolve, reject) => {
-            const child = spawn('npm', ['install'], { stdio: 'inherit',cwd:targetPath });
+            const child = spawn(npm, ['install'], { stdio: 'inherit', cwd: targetPath });
             child.on('close', code => {
                 if (code !== 0) {
                     reject({
@@ -39,7 +40,7 @@ const init = (folderName) => {
         })
     }).then(res => {
         spinner.succeed('install dependencies succeed!');
-    }).catch(err=>{
+    }).catch(err => {
         console.log(err);
         process.exit(0)
     })

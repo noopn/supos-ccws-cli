@@ -1,6 +1,6 @@
 {
   "name": "supos-ccws-cli",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "main": "bin/index",
   "bin": {
     "supos-ccws-cli": "bin/index"
