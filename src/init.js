@@ -1,40 +1,69 @@
 const path = require('path');
 const fse = require('fs-extra');
-const clone = require('git-clone/promise');
 const spawn = require('cross-spawn')
-const ora = require('ora');
-const spinner = ora();
 
 const init = (folderName) => {
     const cwd = process.cwd();
     const targetPath = path.join(cwd, folderName);
-    spinner.start('pull supos-ccws-template');
+    if(fse.pathExistsSync(targetPath)) {
+        console.log();
+        console.log('path existed  removing old path');
+        console.log();
 
-    fse.removeSync(targetPath);
-    fse.ensureDirSync(targetPath);
+        fse.removeSync(targetPath);
+    }
+    fse.mkdirSync(targetPath);
 
-    clone('git@github.com:noopn/supos-ccws-template.git',targetPath,{checkout:'dev'})
-        .then((err) => {
-            if (err) throw new Error(err);
-            spinner.succeed('pull supos-ccws-template succeed!');
-            return new Promise((resolve, reject) => {
-                const child = spawn('npm', ['install'], { stdio: 'inherit', cwd: targetPath });
-                child.on('close', code => {
-                    if (code !== 0) {
-                        reject({
-                            command: `error`,
-                        });
-                        return;
-                    }
-                    resolve();
+    console.log('install dependencies');
+    console.log();
+
+    const template = 'supos-ccws-template';
+    
+    let args = [
+        'install',
+        '--save'
+    ]
+    args.push(template);
+
+    new Promise((resolve, reject) => {
+        const child = spawn('npm',args, { stdio: 'inherit', cwd: targetPath });
+        child.on('close', code => {
+            if (code !== 0) {
+                reject({
+                    command: `error`,
                 });
-            })
-        }).then(() => {
-            spinner.succeed('install dependencies succeed!');
-        }).catch(err => {
-            spinner.fail('pull template error， check your network connection!\n', err);
-            process.exit(0)
+                return;
+            }
+            resolve();
+        });
+    }).then(()=>{
+        console.log();
+        console.log('copy template');
+        console.log();
+
+        const sourcePath = path.join(targetPath,'node_modules',template);
+        fse.copySync(sourcePath,targetPath);
+
+        args = ['uninstall','--silent',template];
+        return new Promise((resolve)=>{
+            const child = spawn('npm',args, { stdio: 'inherit', cwd: targetPath });
+            child.on('close', code => {
+                if (code !== 0) {
+                    reject({
+                        command: `error`,
+                    });
+                    return;
+                }
+                resolve();
+            });
         })
+    })
+    .then(()=>{
+        console.log('supos-ccws-cli install success!')
+    })
+    .catch(err=>{
+        console.log(err);
+    })
 }
 
 module.exports = init;
