@@ -1,70 +1,86 @@
-const path = require('path');
-const fse = require('fs-extra');
-const spawn = require('cross-spawn')
+const path = require("path");
+const fse = require("fs-extra");
+const spawn = require("cross-spawn");
+const inquirer = require("inquirer");
 
-const init = (folderName) => {
-    const cwd = process.cwd();
-    const targetPath = path.join(cwd, folderName);
-    if(fse.pathExistsSync(targetPath)) {
-        console.log();
-        console.log('path existed  removing old path');
-        console.log();
+const useYarn = spawn.sync("yarn", ["--version"]).stdout.toString();
 
-        fse.removeSync(targetPath);
-    }
-    fse.mkdirSync(targetPath);
+const init = async (folderName) => {
+  const cwd = process.cwd();
+  const targetPath = path.join(cwd, folderName);
+  if (fse.pathExistsSync(targetPath)) {
+    await inquirer
+      .prompt([
+        {
+          type: "confirm",
+          name: "isDel",
+          message: `The project folder [${folderName}] already exists, continuing will delete full folder. Do you want to continue?`,
+        },
+      ])
+      .then((answer) => {
+        if (answer.isDel) {
+          fse.removeSync(targetPath);
+        } else {
+          process.exit(1);
+        }
+      });
+  }
 
-    console.log('install dependencies');
-    console.log();
+  fse.mkdirSync(targetPath);
 
-    const template = 'supos-ccws-template';
-    
-    let args = [
-        'install',
-        '--save'
-    ]
-    args.push(template);
+  console.log("install dependencies");
+  console.log();
 
-    new Promise((resolve, reject) => {
-        const child = spawn('npm',args, { stdio: 'inherit', cwd: targetPath });
-        child.on('close', code => {
-            if (code !== 0) {
-                reject({
-                    command: `error`,
-                });
-                return;
-            }
-            resolve();
-        });
-    }).then(()=>{
-        console.log();
-        console.log('copy template');
-        console.log();
+  const template = "supos-ccws-template";
 
-        const sourcePath = path.join(targetPath,'node_modules',template);
-        fse.copySync(sourcePath,targetPath);
+  const ver = spawn.sync("npm", ["show", template, "version"], {
+    encoding: "utf8",
+  });
 
-        args = ['uninstall','--silent',template];
-        return new Promise((resolve)=>{
-            const child = spawn('npm',args, { stdio: 'inherit', cwd: targetPath });
-            child.on('close', code => {
-                if (code !== 0) {
-                    reject({
-                        command: `error`,
-                    });
-                    return;
-                }
-                resolve();
-            });
-        })
-    })
-    .then(()=>{
-        console.log('supos-ccws-cli install success!')
-    })
-    .catch(err=>{
-        console.log(err);
-    })
-}
+  if (ver.stderr) {
+    process.stdout.write(ver.stderr);
+    process.exit(1);
+  }
+
+  const version = ver.stdout.split("/")[0];
+
+  const command = useYarn ? "yarn" : "npm";
+
+  let args = [useYarn ? "add" : "install", `${template}@^${version}`];
+
+  if (!useYarn) {
+    args.push("--save");
+  }
+
+  let result = spawn.sync(command, args, {
+    stdio: "inherit",
+    cwd: targetPath,
+  });
+
+  if (result.signal) {
+    process.exit(1);
+  }
+
+  console.log();
+  console.log("copy template");
+  console.log();
+
+  const sourcePath = path.join(targetPath, "node_modules", template);
+  fse.copySync(sourcePath, targetPath);
+
+  args = [useYarn ? "remove" : "uninstall", "--silent", template];
+
+  result = spawn.sync(command, args, { stdio: "inherit", cwd: targetPath });
+
+  if (result.signal) {
+    process.exit(1);
+  }
+
+  console.log("supos-ccws-template init success!");
+};
+
+process.on("unhandledRejection", (err) => {
+  throw err;
+});
 
 module.exports = init;
-
