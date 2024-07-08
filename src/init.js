@@ -5,7 +5,7 @@ const inquirer = require("inquirer");
 
 const cwd = process.cwd();
 
-const useYarn = spawn.sync("yarn", ["--version"]).stdout.toString();
+const useYarn = spawn.sync("yarn", ["--version"]).stdout?.toString().trim();
 
 const isInWorkspace = !!fse.pathExistsSync(path.join(cwd, "package.json"));
 
