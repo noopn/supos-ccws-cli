@@ -127,6 +127,7 @@ const init = async (folderName) => {
       dev: "supos-ccws-scripts dev",
       build: "supos-ccws-scripts build",
       push: "supos-ccws-scripts push",
+      test: "supos-ccws-scripts test",
     },
     dependencies: {
       [scripts]: `^${scriptsVersion}`,
